@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset='utf-8' />
+<title>Marauders Map</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" type="text/css" href="./css/mapstyle.css" />
+<link href="https://api.mapbox.com/mapbox-gl-js/v2.7.0/mapbox-gl.css" rel="stylesheet">
+<script src="https://api.mapbox.com/mapbox-gl-js/v2.7.0/mapbox-gl.js"></script>
+<script src='https://npmcdn.com/@turf/turf/turf.min.js'></script>
+<style type="text/css">
+
+body {
+    font-family: sans-serif;
+}
+
+#mapWrap, .credit {
+    width:100%;
+    display: block;
+    font-family: sans-serif;
+    color:#555;
+    max-width:1200px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.credit {
+    line-height: 6px;
+    font-size: 12px;
+    margin-top:20px;
+    color:#888;
+}
+
+.credit a {
+    text-decoration:none;
+    color: coral;
+}
+
+#closeBtn {
+    display: none;
+    position: absolute;
+    background: red;
+    color:#fff;
+    font-weight: bold;
+    border:none;
+    padding:12px 20px;
+    top:10px;
+    right:10px;
+    z-index:10;
+}
+
+#closeBtn:hover {
+    cursor: pointer;
+}
+
+</style>
+</head>
+
+<body>
+<div id="mapWrap">
+    <div class="column left">
+        <h2>Marauders Map(box)</h2>
+        <p>Recreating the aesthetics of <a href="https://simple.wikipedia.org/wiki/Marauder%27s_Map" target="_blank">Marauders map</a> from the Harry Potter series using <a href=https://www.mapbox.com/ target="_blank">Mapbox</a> and <a href="http://turfjs.org/" target="_blank">Turf.js</a>.</p>
+        <div id="pitchView" class="active">Pitched view</div>
+    </div>
+    <div class="column right">
+        <div id="map"></div>
+    </div>
+</div>
+<div class="credit">
+    <p>Code: <a href="https://github.com/willymaps/marauder" target="_blank">Github</a></p>
+</div>
+
+<script>
+document.getElementById("pitchView").addEventListener("click", displayBuffer);
+
+const line = turf.lineString([
+          [
+            -73.95539045333862,
+            40.79945154216941
+          ],
+          [
+            -73.95551919937134,
+            40.799289107111534
+          ],
+          [
+            -73.95596981048584,
+            40.799264741818575
+          ],
+          [
+            -73.95674228668213,
+            40.79939468994437
+          ],
+          [
+            -73.95714998245239,
+            40.79941905518962
+          ],
+          [
+            -73.95757913589478,
+            40.7995408812818
+          ],
+          [
+            -73.95791172981262,
+            40.799516516081255
+          ],
+          [
+            -73.95819067955017,
+            40.79933783767063
+          ],
+          [
+            -73.95843744277954,
+            40.79908606273021
+          ],
+          [
+            -73.9585018157959,
+            40.7987693122552
+          ],
+          [
+            -73.95842671394348,
+            40.79851753515842
+          ],
+          [
+            -73.95819067955017,
+            40.79833885405878
+          ],
+          [
+            -73.95782589912413,
+            40.79823326954653
+          ],
+          [
+            -73.95753622055054,
+            40.79817641627809
+          ],
+          [
+            -73.95721435546875,
+            40.79803834385199
+          ],
+          [
+            -73.95702123641968,
+            40.797827173703645
+          ],
+          [
+            -73.95699977874754,
+            40.797542905135465
+          ],
+          [
+            -73.95702123641968,
+            40.79723426931172
+          ],
+          [
+            -73.95690321922302,
+            40.79699873048084
+          ],
+          [
+            -73.95676374435425,
+            40.79665760379586
+          ],
+          [
+            -73.95680665969849,
+            40.79630835323094
+          ],
+          [
+            -73.95714998245239,
+            40.7958778790764
+          ],
+          [
+            -73.9574933052063,
+            40.79562609101296
+          ],
+          [
+            -73.9578366279602,
+            40.795471768824655
+          ],
+          [
+            -73.95814776420592,
+            40.79539866871552
+          ],
+          [
+            -73.95857691764832,
+            40.795276835021404
+          ],
+          [
+            -73.9588987827301,
+            40.795049411527515
+          ],
+          [
+            -73.9591133594513,
+            40.79477325338044
+          ],
+          [
+            -73.95924210548401,
+            40.79448897173502
+          ],
+          [
+            -73.95942449569702,
+            40.79426154554226
+          ],
+          [
+            -73.95970344543457,
+            40.79409909778471
+          ],
+          [
+            -73.96015405654907,
+            40.793944772046906
+          ],
+          [
+            -73.96082997322083,
+            40.79371734398994
+          ],
+          [
+            -73.96137714385986,
+            40.79335183298053
+          ],
+          [
+            -73.96174192428589,
+            40.79301068755628
+          ],
+          [
+            -73.96211743354797,
+            40.792482720944115
+          ],
+          [
+            -73.96252512931824,
+            40.79163796563209
+          ],
+          [
+            -73.96292209625243,
+            40.79123182944483
+          ],
+          [
+            -73.96350145339966,
+            40.79087442754513
+          ],
+          [
+            -73.96396279335022,
+            40.790598252032275
+          ],
+          [
+            -73.96418809890747,
+            40.790216478108306
+          ],
+          [
+            -73.96420955657959,
+            40.78983470198932
+          ],
+          [
+            -73.96414518356323,
+            40.78950166145461
+          ],
+          [
+            -73.96422028541565,
+            40.78917674225005
+          ],
+          [
+            -73.96452069282532,
+            40.78890055967609
+          ],
+          [
+            -73.96557211875916,
+            40.78851877599125
+          ],
+          [
+            -73.96610856056213,
+            40.788307575563024
+          ],
+          [
+            -73.96658062934875,
+            40.78802326623352
+          ],
+          [
+            -73.96711707115173,
+            40.78753587597955
+          ],
+          [
+            -73.96743893623352,
+            40.78707285192491
+          ],
+          [
+            -73.96753549575804,
+            40.78659357801187
+          ],
+          [
+            -73.96746039390564,
+            40.78600057329813
+          ],
+          [
+            -73.96727800369263,
+            40.78554566198343
+          ],
+          [
+            -73.9671277999878,
+            40.785139488533524
+          ],
+          [
+            -73.96711707115173,
+            40.78466832421953
+          ],
+          [
+            -73.96728873252869,
+            40.78429463980057
+          ],
+          [
+            -73.96764278411865,
+            40.7838803350522
+          ],
+          [
+            -73.96811485290527,
+            40.783457904020345
+          ],
+          [
+            -73.96884441375731,
+            40.78302734654995
+          ],
+          [
+            -73.96931648254395,
+            40.78269427187509
+          ],
+          [
+            -73.9694344997406,
+            40.78230432866993
+          ],
+          [
+            -73.96939158439636,
+            40.781865639827636
+          ],
+          [
+            -73.96937012672424,
+            40.78139445228818
+          ],
+          [
+            -73.96947741508484,
+            40.781126361334145
+          ],
+          [
+            -73.96983146667479,
+            40.780736408923936
+          ],
+          [
+            -73.9706039428711,
+            40.78020834471932
+          ],
+          [
+            -73.97121548652649,
+            40.7797696420337
+          ],
+          [
+            -73.97166609764099,
+            40.77933093645069
+          ],
+          [
+            -73.97198796272278,
+            40.77892472499411
+          ],
+          [
+            -73.9724600315094,
+            40.77864849978476
+          ],
+          [
+            -73.97333979606628,
+            40.77810417027496
+          ],
+          [
+            -73.9738655090332,
+            40.77772232452411
+          ],
+          [
+            -73.97408008575438,
+            40.77718611189219
+          ],
+          [
+            -73.9740264415741,
+            40.776601147721095
+          ],
+          [
+            -73.97396206855774,
+            40.77592680763245
+          ],
+          [
+            -73.97391915321349,
+            40.775569323363555
+          ],
+          [
+            -73.97404789924622,
+            40.77509809116089
+          ],
+          [
+            -73.97448778152466,
+            40.77475685196209
+          ],
+          [
+            -73.97514224052429,
+            40.774561857347244
+          ],
+          [
+            -73.97561430931091,
+            40.77426936435192
+          ],
+          [
+            -73.97620439529419,
+            40.773505626571
+          ],
+          [
+            -73.97662281990051,
+            40.772725629988514
+          ],
+          [
+            -73.97677302360535,
+            40.772197502103474
+          ],
+          [
+            -73.9774489402771,
+            40.771523117316896
+          ],
+          [
+            -73.97817850112915,
+            40.771019355540254
+          ],
+          [
+            -73.97897243499756,
+            40.770418086484604
+          ],
+          [
+            -73.97951960563658,
+            40.76985743881467
+          ],
+          [
+            -73.97986292839049,
+            40.76923990837029
+          ],
+          [
+            -73.97985219955444,
+            40.768931140996
+          ],
+          [
+            -73.97977709770203,
+            40.76866299974387
+          ],
+          [
+            -73.9794659614563,
+            40.76834610414183
+          ],
+          [
+            -73.97897243499756,
+            40.76793982551823
+          ],
+          [
+            -73.97870421409607,
+            40.76772855965232
+          ],
+          [
+            -73.97863984107971,
+            40.767517293114764
+          ],
+          [
+            -73.97884368896484,
+            40.76720039204912
+          ],
+          [
+            -73.9790689945221,
+            40.76689974092317
+          ]
+]);
+
+// please use your own token!
+mapboxgl.accessToken = 'pk.eyJ1Ijoid2lsbGlhbS1kYXZpcyIsImEiOiJja2tiYWtvbWcwMmtzMnBvajh3M2kxZGRuIn0.GeROaHKn2Gbvsg1e8buJEw';
+
+const map = new mapboxgl.Map({
+	container: 'map',
+	style: 'mapbox://styles/mapbox/light-v10',
+	center: [-73.9553, 40.7994],
+	minZoom: 17,
+	zoom: 17.7,
+	bearing: -150,
+  interactive: false
+});
+
+
+map.on('load', () => {
+	initLineLayer();
+});
+
+function initLineLayer() {
+
+  map.loadImage(
+    '../icons/left_foot.png',
+    (error, image) => {
+      if (error) throw error;
+      map.addImage('left', image);
+  });
+
+  map.loadImage(
+    '../icons/right_foot.png',
+    (error, image) => {
+      if (error) throw error;
+      map.addImage('right', image);
+  });
+
+  map.addSource('lineSourceLeft', {
+      type: 'geojson',
+      data: {"type": "FeatureCollection", "features": []}
+  });
+
+  map.addSource('lineSourceRight', {
+      type: 'geojson',
+      data: {"type": "FeatureCollection", "features": []}
+  });
+
+  map.addLayer({
+    'id': 'line-left',
+    'type': 'symbol',
+    'source': 'lineSourceLeft', // reference the data source
+    'layout': {
+        'icon-image': 'left', // reference the image
+        'icon-size': 0.3,
+        'icon-allow-overlap': true,
+        'icon-offset': [-35, 0],
+        'icon-pitch-alignment': 'map'
+    },
+    'filter': ['==', ['get', 'pointId'], 0]
+  });
+
+  map.addLayer({
+    'id': 'line-right',
+    'type': 'symbol',
+    'source': 'lineSourceRight', // reference the data source
+    'layout': {
+        'icon-image': 'right', // reference the image
+        'icon-size': 0.3,
+        'icon-allow-overlap': true,
+        'icon-offset': [35, 0],
+        'icon-pitch-alignment': 'map'
+    },
+    'filter': ['==', ['get', 'pointId'], 0]
+  });
+
+  map.on('render', createAnimation);
+}
+
+function createAnimation() {
+
+  map.off('render', createAnimation);
+
+	// calculate line distance
+	let lineDistance = turf.lineDistance(line);
+
+	// create an empty feature collection
+  let rectCollection = turf.featureCollection([]);
+
+  // how many points you want along the path (more = smoother animation)
+  let rects = 600;
+
+  // get speed
+  let speed = 250;
+
+  // calculate the distance between each point on the path
+  let segments = lineDistance / rects;
+
+  // what units do you want to use?
+  let units = 'miles';
+
+  // based on the number of points...
+  for (let i = 0; i <= rects; i++) {
+
+      // calculate point location for each segment
+      let pointonline = turf.along(line, (segments * i), {pointId: i});
+
+      // add an id to the point
+      pointonline.properties = {'pointId': i};
+
+      // push these coordinates to the feature collection we created
+      rectCollection.features.push(pointonline);
+
+      // once 'i' equals the number of points then we're done building our line 
+      if (i == rects) {
+
+        // function to animate line
+        moveLine(rectCollection, speed);
+
+      }
+  }
+
+}
+
+function moveLine(rects, speed) {
+
+  const lineCoordsLeft = turf.featureCollection(rects.features.filter((e, i) =>  i % 2 == 0));
+  const lineCoordsRight = turf.featureCollection(rects.features.filter((e, i) =>  i % 2 != 0));
+
+  map.getSource('lineSourceLeft').setData(lineCoordsLeft);
+  map.getSource('lineSourceRight').setData(lineCoordsRight);
+
+	// animation loop
+	for (let i = 0; i <= rects.features.length-1; i++) {
+        (function(index) {
+
+            const animateTimeout = setTimeout(function() {
+
+              let pointBearing = -150;
+
+              // need two coordinates to calculate bearing
+              if (i >= 2) {
+                const newPoint = turf.point(rects.features[index].geometry.coordinates);
+                const lastPoint = turf.point(rects.features[index-1].geometry.coordinates);
+                pointBearing = turf.bearing(lastPoint, newPoint);
+              }
+
+              const lastNum = index-7;
+              const pointFilter = ['all', ['>', ['get', 'pointId'], lastNum], ['<=', ['get', 'pointId'], index]];
+              const opacityExpression = ['interpolate', ['linear'], ['get', 'pointId'], lastNum, 0, index-2, 0.5, index, 1];
+
+              map.setFilter('line-left', pointFilter);
+              map.setFilter('line-right', pointFilter);
+              map.setPaintProperty('line-left', 'icon-opacity', opacityExpression);
+              map.setPaintProperty('line-right', 'icon-opacity', opacityExpression);
+
+              map.easeTo({
+                center: rects.features[index].geometry.coordinates,
+                bearing: pointBearing
+              });
+
+              // if we're at the end of the loop...
+              if (i === rects.features.length-1) {
+                  console.log('done drawing');
+              }
+
+            // how quickly do we want to iterate through our animation
+            }, i * speed);
+        })(i);
+    }
+}
+
+// btn function
+function displayBuffer() {
+  console.log(this.classList.contains('active'));
+    if (this.classList.contains('active')) {
+      document.getElementById('pitchView').innerHTML = "Top-down view"
+      this.classList.remove('active');
+      map.setPitch(50);
+    } else {
+      document.getElementById('pitchView').innerHTML = "Pitched view";
+      this.classList.add('active');
+      map.setPitch(0);
+    }
+}
+
+
+</script>
+</body>
+</html>
