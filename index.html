@@ -482,14 +482,14 @@ map.on('load', () => {
 function initLineLayer() {
 
   map.loadImage(
-    '../icons/left_foot.png',
+    './icons/left_foot.png',
     (error, image) => {
       if (error) throw error;
       map.addImage('left', image);
   });
 
   map.loadImage(
-    '../icons/right_foot.png',
+    './icons/right_foot.png',
     (error, image) => {
       if (error) throw error;
       map.addImage('right', image);
